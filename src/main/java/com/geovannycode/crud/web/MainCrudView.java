@@ -4,6 +4,8 @@ import com.geovannycode.crud.domain.Customer;
 import com.geovannycode.crud.domain.CustomerService;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,13 @@ public class MainCrudView extends VerticalLayout {
 
     public MainCrudView(@Autowired CustomerService customerService) {
         GridCrud<Customer> crud = new GridCrud<>(Customer.class);
+
+        // additional components
+        TextField filter = new TextField();
+        filter.setPlaceholder("Filter by name");
+        filter.setClearButtonVisible(true);
+        filter.setValueChangeMode(ValueChangeMode.EAGER); // Dispara el evento en cada pulsación de tecla
+        crud.getCrudLayout().addFilterComponent(filter);
 
         // Configuración del Grid
         crud.getGrid().setColumns("id","name", "email", "phone", "address", "city", "state", "zip", "country");
@@ -36,11 +45,21 @@ public class MainCrudView extends VerticalLayout {
         add(crud);
         crud.setFindAllOperationVisible(false);
 
+        // Configuración de las operaciones
         crud.setOperations(
-                customerService::findAll,
+                () -> {
+                    String filterValue = filter.getValue();
+                    if (filterValue == null || filterValue.isEmpty()) {
+                        return customerService.findAll();
+                    } else {
+                        return customerService.findByNameContainingIgnoreCase(filterValue);
+                    }
+                },
                 customerService::save,
                 customerService::update,
                 customerService::delete);
 
+        // Configuración del filtro
+        filter.addValueChangeListener(e -> crud.refreshGrid());
     }
 }

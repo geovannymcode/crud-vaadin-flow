@@ -18,6 +18,13 @@ public class CustomerService {
         return customerRepository.findAll().stream().map(CustomerMapper::toCustomer).collect(Collectors.toList());
     }
 
+    public List<Customer> findByNameContainingIgnoreCase(String name) {
+        return customerRepository.findByNameContainingIgnoreCase(name)
+                .stream()
+                .map(CustomerMapper::toCustomer)
+                .collect(Collectors.toList());
+    }
+
     public Customer save(Customer customer) {
         return CustomerMapper.toCustomer(customerRepository.save(CustomerMapper.toCustomerEntity(customer)));
     }

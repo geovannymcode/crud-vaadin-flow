@@ -2,4 +2,8 @@ package com.geovannycode.crud.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> { }
+import java.util.List;
+
+public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> {
+    List<CustomerEntity> findByNameContainingIgnoreCase(String name);
+}
